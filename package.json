@@ -1,6 +1,6 @@
 {
-  "name": "ui-driver-civo",
-  "version": "0.0.2",
+  "name": "ui-cluster-driver-civo",
+  "version": "0.0.1",
   "description": "Civo Rancher UI driver for custom docker-machine drivers",
   "repository": {
     "type": "git",

@@ -1,59 +1,364 @@
 <section class="horizontal-form">
-  {{#accordion-list showExpandAll=false as | al expandFn |}}
-    {{!-- This line shows the driver title which you don't have to change it --}}
-    <div class="over-hr mb-20"><span>{{driverOptionsTitle}}</span></div>
-
-    {{!-- An example input option --}}
-    <div class="row box mt-20">
-      <h4>Instance Options</h4>
-      <div class="row">
-        <div class="col span-2 col-inline">
-          <label>CPUs</label>
-        </div>
-
-        <div class="col span-1">
-          {{config.cpuCount}}
-        </div>
-        <div class="col span-3">
-          {{input-slider value=config.cpuCount valueMin=1 valueMax=32}}
-        </div>
-
-        <div class="col span-2 col-inline">
-          <label>Memory Size</label>
-        </div>
-        <div class="col span-4">
-          <div class="input-group">
-            {{input-integer min=1 value=config.memorySize classNames="form-control"}}
-            <div class="input-group-addon bg-default">MB</div>
+  {{#accordion-list showExpandAll=false as |al expandFn|}}
+    {{#if (eq step 1)}}
+      {{#accordion-list-itemcivoEngineConfig
+        title=apiKeyTitle
+        detail=apiKeyDetail
+        expandAll=expandAll
+        expand=(action expandFn)
+        expandOnInit=true
+      }}
+        <div class="row">
+          <div class="col span-12">
+            <label class="acc-label">
+              {{t "clusterNew.civo.apiKey.title"}}
+              {{field-required}}
+            </label>
+            {{#input-or-display
+              editable=true
+              value=cluster.civoEngineConfig.apiKey
+            }}
+              {{input
+                type="password"
+                name="accessToken"
+                classNames="form-control"
+                placeholder=(t "clusterNew.civo.apiKey.placeholder")
+                value=cluster.civoEngineConfig.apiKey
+              }}
+            {{/input-or-display}}
           </div>
         </div>
-      </div>
-    </div>
-
-    {{!-- This following contains the Name, Labels and Engine Options fields --}}
-    <div class="over-hr"><span>{{templateOptionsTitle}}</span></div>
-
-    {{form-name-description
-      model=model
-      nameRequired=true
-    }}
-
-    {{form-user-labels
-      initialLabels=labelResource.labels
-      setLabels=(action 'setLabels')
-      expandAll=expandAll
-      expand=(action expandFn)
-    }}
-
-    {{form-engine-opts
-      machine=model
-      showEngineUrl=showEngineUrl
-    }}
+      {{/accordion-list-item}}
+      {{top-errors errors=errors}}
+      {{save-cancel
+        btnLabel="clusterNew.civo.apiKey.next"
+        savingLabel="clusterNew.civo.apiKey.loading"
+        save="verifyApiKey"
+        cancel=close
+      }}
+    {{else if (eq step 2)}}
+      {{#accordion-list-item
+        title=clusterConfigTitle
+        detail=clusterConfigDetail
+        expandAll=expandAll
+        expand=(action expandFn)
+        expandOnInit=true
+      }}
+        <div class="row">
+          <div class="col span-6">
+            <label class="acc-label">
+              {{t "clusterNew.civo.name.label"}}
+              {{field-required}}
+            </label>
+            {{#input-or-display
+              editable=true
+              value=cluster.civoEngineConfig.name
+            }}
+              {{input
+                type="text"
+                name="name"
+                classNames="form-control"
+                placeholder=(t "clusterNew.civo.name.placeholder")
+                value=cluster.civoEngineConfig.name
+              }}
+            {{/input-or-display}}
+          </div>
+          <div class="col span-6">
+            <label class="acc-label">
+              {{t "clusterNew.civo.region.label"}}
+              {{field-required}}
+            </label>
+            {{#input-or-display
+              editable=true
+              value=cluster.civoEngineConfig.region
+            }}
+              {{new-select
+                class="form-control"
+                content=regionChoises
+                value=cluster.civoEngineConfig.region
+              }}
+            {{/input-or-display}}
+          </div>
+          <div class="col span-6">
+            <label class="acc-label">
+              {{t "clusterNew.civo.networkId.label"}}
+              {{field-required}}
+            </label>
+            {{#input-or-display
+              editable=true
+              value=cluster.civoEngineConfig.networkId
+            }}
+              {{input
+                type="text"
+                name="networkId"
+                classNames="form-control"
+                placeholder=(t "clusterNew.civo.networkId.placeholder")
+                value=cluster.civoEngineConfig.networkId
+              }}
+            {{/input-or-display}}
+          </div>
+          <div class="col span-6">
+            <label class="acc-label">
+              {{t "clusterNew.civo.cniPlugin.label"}}
+              {{field-required}}
+            </label>
+            {{#input-or-display
+              editable=true
+              value=cluster.civoEngineConfig.cniPlugin
+            }}
+              {{input
+                type="text"
+                name="cniPlugin"
+                classNames="form-control"
+                placeholder=(t "clusterNew.civo.cniPlugin.placeholder")
+                value=cluster.civoEngineConfig.cniPlugin
+              }}
+            {{/input-or-display}}
+          </div>
+          <div class="col span-6">
+            <label class="acc-label">
+              {{t "clusterNew.civo.firewallId.label"}}
+              {{field-required}}
+            </label>
+            {{#input-or-display
+              editable=true
+              value=cluster.civoEngineConfig.firewallId
+            }}
+              {{input
+                type="text"
+                name="firewallId"
+                classNames="form-control"
+                placeholder=(t "clusterNew.civo.firewallId.placeholder")
+                value=cluster.civoEngineConfig.firewallId
+              }}
+            {{/input-or-display}}
+          </div>
+          <div class="col span-6">
+            <label class="acc-label">
+              {{t "clusterNew.civo.kubernetesVersion.label"}}
+              {{field-required}}
+            </label>
+            {{#input-or-display
+              editable=true
+              value=cluster.civoEngineConfig.kubernetesVersion
+            }}
+              {{new-select
+                class="form-control"
+                content=k8sVersionChoises
+                value=cluster.civoEngineConfig.kubernetesVersion
+              }}
+            {{/input-or-display}}
+          </div>
+        </div>
+      {{/accordion-list-item}}
+      {{top-errors errors=errors}}
+      {{save-cancel
+        btnLabel="clusterNew.civo.clusterConfig.next"
+        savingLabel="clusterNew.civo.clusterConfig.loading"
+        save="verifyClusterConfig"
+        cancel=close
+      }}
+    {{else if (eq step 3)}}
+      {{#accordion-list-item
+        title=nodePoolConfigTitle
+        detail=nodePoolConfigDetail
+        expandAll=expandAll
+        expand=(action expandFn)
+        expandOnInit=true
+      }}
+        {{! select node pool }}
+        <div class="row">
+          <div class="col span-4">
+            <label class="acc-label">
+              {{t "clusterNew.civo.selectedNodePoolType.label"}}
+            </label>
+            {{#input-or-display editable=true value=selectedNodePoolType}}
+              {{new-select
+                class="form-control"
+                content=nodePoolChoises
+                value=selectedNodePoolType
+              }}
+            {{/input-or-display}}
+          </div>
+          <div class="col span-1">
+            <div class="acc-label pb-15">
+              Monthly:
+            </div>
+            $
+            {{this.selectedNodePoolObj.price.monthly}}
+          </div>
+          <div class="col span-1">
+            <div class="acc-label pb-15">
+              Hourly:
+            </div>
+            $
+            {{this.selectedNodePoolObj.price.hourly}}
+          </div>
+          <div class="col span-1">
+            <div class="acc-label pb-15">
+              RAM:
+            </div>
+            {{this.selectedNodePoolObj.memoryGb}}
+            GB
+          </div>
+          <div class="col span-1">
+            <div class="acc-label pb-15">
+              CPUs:
+            </div>
+            {{this.selectedNodePoolObj.vcpus}}
+          </div>
+          <div class="col span-1">
+            <div class="acc-label pb-15">
+              Storage:
+            </div>
+            {{this.selectedNodePoolObj.diskGb}}
+            GB
+          </div>
+          <div class="col span-1">
+            <div class="acc-label">
+              Count:
+            </div>
+            <Input
+              @type="number"
+              @min="1"
+              @value={{this.selectedNodePoolObj.count}}
+            />
+          </div>
+          <div class="col span-1">
+            <div class="acc-label pb-10">
+              Actions
+            </div>
+            <button
+              class="btn bg-primary icon-btn p-0"
+              {{action "addSelectedNodePool"}}
+            >
+              <span class="darken">
+                <i class="icon icon-plus text-small"></i>
+              </span>
+              <span>
+                Add Node Pool
+              </span>
+            </button>
+          </div>
+        </div>
+        <div class="ember-view">
+          <div class="header mt-20 clearfix">
+            <div class="pull-left">
+              <h2 class="mb-0">
+                {{t "clusterNew.civo.nodePools.label"}}
+              </h2>
+            </div>
+          </div>
+          <div class="grid sortable-table ember-view">
+            <table class="fixed grid sortable-table">
+              <thead>
+                <tr class="fixed-header">
+                  <th lass="sortable ember-view" role="columnheader">
+                    <a class="btn bg-transparent">
+                      Label
+                    </a>
+                  </th>
+                  <th lass="sortable ember-view" role="columnheader">
+                    <a class="btn bg-transparent">
+                      Monthly $
+                    </a>
+                  </th>
+                  <th lass="sortable ember-view" role="columnheader">
+                    <a class="btn bg-transparent">
+                      Hourly $
+                    </a>
+                  </th>
+                  <th lass="sortable ember-view" role="columnheader">
+                    <a class="btn bg-transparent">
+                      RAM (GB)
+                    </a>
+                  </th>
+                  <th lass="sortable ember-view" role="columnheader">
+                    <a class="btn bg-transparent">
+                      CPUs
+                    </a>
+                  </th>
+                  <th lass="sortable ember-view" role="columnheader">
+                    <a class="btn bg-transparent">
+                      Storage (GB)
+                    </a>
+                  </th>
+                  <th lass="sortable ember-view" role="columnheader">
+                    <a class="btn bg-transparent">
+                      Count
+                    </a>
+                  </th>
+                  <th lass="sortable ember-view" role="columnheader">
+                    <a class="btn bg-transparent"></a>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each this.selectedNodePoolList as |selectedNodePool|}}
+                  <tr class="main-row ember-view">
+                    <td>
+                      {{selectedNodePool.label}}
+                    </td>
+                    <td>
+                      {{selectedNodePool.price.monthly}}
+                    </td>
+                    <td>
+                      {{selectedNodePool.price.hourly}}
+                    </td>
+                    <td>
+                      {{selectedNodePool.memoryGb}}
+                    </td>
+                    <td>
+                      {{selectedNodePool.vcpus}}
+                    </td>
+                    <td>
+                      {{selectedNodePool.diskGb}}
+                    </td>
+                    <td>
+                      <Input
+                        @type="number"
+                        @min="1"
+                        @value={{selectedNodePool.count}}
+                      />
+                    </td>
+                    <td class="text-center">
+                      <button
+                        class="btn bg-error btn-sm"
+                        {{action "deleteNodePool" selectedNodePool.id}}
+                      >
+                        <i class="icon icon-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                {{else}}
+                  <tr class="main-row ember-view">
+                    <td colspan="8" class="p-10 text-center">
+                      {{t "clusterNew.civo.nodePools.empty"}}
+                    </td>
+                  </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {{! show selected node pools end }}
+      {{/accordion-list-item}}
+      {{top-errors errors=errors}}
+      {{#if (eq mode "edit")}}
+        {{save-cancel
+          btnLabel="clusterNew.civo.nodePoolConfig.update"
+          savingLabel="clusterNew.civo.nodePoolConfig.loading"
+          save="updateCluster"
+          cancel=close
+        }}
+      {{else}}
+        {{save-cancel
+          btnLabel="clusterNew.civo.nodePoolConfig.next"
+          savingLabel="clusterNew.civo.nodePoolConfig.loading"
+          save="createCluster"
+          cancel=close
+        }}
+      {{/if}}
+    {{/if}}
   {{/accordion-list}}
-
-  {{!-- This component shows errors produced by validate() in the component --}}
-  {{top-errors errors=errors}}
-
-  {{!-- This component shows the Create and Cancel buttons --}}
-  {{save-cancel save="save" cancel="cancel"}}
 </section>

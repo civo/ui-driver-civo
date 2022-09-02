@@ -10,9 +10,7 @@ const pkg = require('./package.json');
 const fs = require('fs');
 const replaceString = require('replace-string');
 
-
 const NAME_TOKEN = '%%DRIVERNAME%%';
-
 const BASE = 'component/';
 const DIST = 'dist/';
 const TMP = 'tmp/';
@@ -117,11 +115,22 @@ gulp.task('rexport', gulp.series('babel', function () {
     .pipe(gulp.dest(TMP));
 }));
 
-gulp.task('compile', gulp.series('rexport', function () {
+gulp.task('alias', gulp.series('rexport', function() {
   return gulp.src([
-    `${TMP}**.js`
+    `${BASE}alias.js`
   ])
-    .pipe(gulpConcat(`component.js`, { newLine: ';\n' }))
+    .pipe(replace(NAME_TOKEN, DRIVER_NAME))
+    .pipe(gulpConcat(`alias.js`, {newLine: '\n'}))
+    .pipe(gulp.dest(TMP));
+}));
+
+gulp.task('compile', gulp.series('alias', function() {
+  return gulp.src([
+    `${TMP}component.js`,
+    `${TMP}rexport.js`,
+    `${TMP}alias.js`,
+  ])
+    .pipe(gulpConcat(`component.js`, {newLine: '\n'}))
     .pipe(gulp.dest(DIST));
 }));
 
@@ -136,7 +145,3 @@ gulp.task('server', gulp.parallel(['build', 'watch'], function () {
 }));
 
 gulp.task('default', gulp.series('build'));
-
-gulp.task('watch', function () {
-  gulp.watch(['./component/*.js', './component/*.hbs', './component/*.css'], gulp.parallel('build'));
-});
